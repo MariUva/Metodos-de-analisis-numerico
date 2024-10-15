@@ -23,9 +23,11 @@ def jacobi(A, b, x0=None, tol=1e-10):
     x = np.zeros_like(b) if x0 is None else x0  # Estimación inicial
 
     # Encabezado de la tabla
-    print(f"{'Iteración':<10}{'x1':<15}{'x2':<15}{'x3':<15}")
+    print(f"{'Iteración':<10}{'x1':<15}{'x2':<15}{'x3':<15}{'%Error x1':<20}{'%Error x2':<20}{'%Error x3':<20}")
 
     iteration = 0  # Contador de iteraciones
+    error_prev = np.zeros_like(x)  # Inicialización del error para la primera iteración
+
     while True:
         x_new = np.zeros_like(x)  # Crear un nuevo vector para las estimaciones
         iteration += 1  # Incrementar el contador de iteraciones
@@ -36,13 +38,22 @@ def jacobi(A, b, x0=None, tol=1e-10):
             # Aplicar la fórmula de Jacobi
             x_new[i] = (b[i] - sum_ax) / A[i, i]
 
+        # Calcular el porcentaje de error
+        if iteration > 1:
+            error = np.abs((x_new - x) / x_new) * 100
+        else:
+            error = error_prev
+
         # Calcular la norma de la diferencia para verificar la convergencia
         if np.linalg.norm(x_new - x, ord=np.inf) < tol:
             print(f"Convergió en la iteración {iteration}")
             return x_new
         
-        # Imprimir la iteración y los valores actuales de x1, x2, x3, ...
-        print(f"{iteration:<10}{x_new[0]:<15.6f}{x_new[1]:<15.6f}{x_new[2]:<15.6f}")
+        # Imprimir la iteración y los valores actuales de x1, x2, x3 y los porcentajes de error
+        if iteration == 1:
+            print(f"{iteration:<10}{x_new[0]:<15.6f}{x_new[1]:<15.6f}{x_new[2]:<15.6f}{'-':<20}{'-':<20}{'-':<20}")
+        else:
+            print(f"{iteration:<10}{x_new[0]:<15.6f}{x_new[1]:<15.6f}{x_new[2]:<15.6f}{error[0]:<20.6f}{error[1]:<20.6f}{error[2]:<20.6f}")
 
         x = x_new  # Actualizar x para la siguiente iteración
 
